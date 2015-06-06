@@ -471,7 +471,7 @@ int BsdTcpServer(unsigned short usPort)
 
 
 void HttpServerAppTask(void * param)
-{
+{     
   long lRetVal = -1;
   
   lRetVal = Network_IF_InitDriver(ROLE_STA);

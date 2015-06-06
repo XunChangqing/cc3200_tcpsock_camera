@@ -148,7 +148,7 @@ static  const s_RegList preview_cmds_list[]= {
 };
 #else 
 static  const s_RegList capture_cmds_list[]= {
-    {0, 0x65, 0xA000    },  // Disable PLL
+  {0, 0x65, 0xA000    },  // Disable PLL
     {0, 0x65, 0xE000    },  // Power DOWN PLL
     {100, 0x00, 0x01F4  },  // Delay =500ms
     {0,  0x66,  0x500B  },
@@ -159,12 +159,25 @@ static  const s_RegList capture_cmds_list[]= {
     {100, 0x00, 0x01F4  },  // Delay =500ms
     {100, 0x00, 0x01F4  },  // Delay =500ms
     {100, 0x00, 0x01F4  },  // Delay =500ms
-    {1, 0xC6, 0xA102    },  // SEQ_MODE
-    {1, 0xC8, 0x0001    },  // SEQ_MODE
-    {1, 0xC6, 0xA102    },  // SEQ_MODE
-    {1, 0xC8, 0x0005    },  // SEQ_MODE
+            
+    //add r9 and gain settings
+    //4D0
+    {0, 0x09, 0x0BFF},
+    {0, 0x2B, 0x0020},
+    {0, 0x2C, 0x0020},
+    {0, 0x2D, 0x0020},
+    {0, 0x2E, 0x0020},
+    {0, 0x2F, 0x0020},
+    //remove mode settings
+    //    {1, 0xC6, 0xA102    },  // SEQ_MODE
+//    {1, 0xC8, 0x0001    },  // SEQ_MODE
+//    {1, 0xC6, 0xA102    },  // SEQ_MODE
+//    {1, 0xC8, 0x0005    },  // SEQ_MODE
+    
+    //captureParams.mode bit1 capture video
     {1,  0xC6, 0xA120   },  // Enable Capture video
     {1,  0xC8, 0x0002   },
+//    {1,  0xC8, 0x0012   },//ae on, video only
     {1,  0xC6, 0x270B   },  // Mode config, disable JPEG bypass
     {1,  0xC8, 0x0000   },
     {1,  0xC6, 0x2702   },  // FIFO_config0b, no spoof, adaptive clock
@@ -271,57 +284,179 @@ static  const s_RegList init_cmds_list[]= {
     {2, 0xAD, 0x0000    }, // GLOBAL_OFFSET_FXY_FUNCTION
     {2, 0xAE, 0x0000    }, // K_FACTOR_IN_K_FX_FY
     {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
-//    {1, 0xC6, 0x2003    }, // MON_ARG1
-//    {1, 0xC8, 0x0748    }, // MON_ARG1
-//    {1, 0xC6, 0xA002    }, // MON_CMD
-//    {1, 0xC8, 0x0001    }, // MON_CMD
-//    {111, 0xC8,0x0000 },
-//    {1, 0xC6, 0xA361    }, // AWB_TG_MIN0
-//    {1, 0xC8, 0x00E2    }, // AWB_TG_MIN0
+    {1, 0xC6, 0x2003    }, // MON_ARG1
+    {1, 0xC8, 0x0748    }, // MON_ARG1
+    {1, 0xC6, 0xA002    }, // MON_CMD
+    {1, 0xC8, 0x0001    }, // MON_CMD
+    {111, 0xC8,0x0000 },
+    {1, 0xC6, 0xA361    }, // AWB_TG_MIN0
+    {1, 0xC8, 0x00E2    }, // AWB_TG_MIN0
     {1, 0x1F, 0x0018    }, // RESERVED_SOC1_1F
     {1, 0x51, 0x7F40    }, // RESERVED_SOC1_51
     {0, 0x33, 0x0343    }, // RESERVED_CORE_33
     {0, 0x38, 0x0868    }, // RESERVED_CORE_38
-//    {1, 0xC6, 0xA10F    }, // SEQ_RESET_LEVEL_TH
-//    {1, 0xC8, 0x0042    }, // SEQ_RESET_LEVEL_TH
+    {1, 0xC6, 0xA10F    }, // SEQ_RESET_LEVEL_TH
+    {1, 0xC8, 0x0042    }, // SEQ_RESET_LEVEL_TH
     {1, 0x1F, 0x0020    }, // RESERVED_SOC1_1F
-//    {1, 0xC6, 0xAB04    }, // HG_MAX_DLEVEL
-//    {1, 0xC8, 0x0008    }, // HG_MAX_DLEVEL
-    //shutter width
-//    {0, 0x09, 0xFFF},
-    //disable all drivers
-//    {1, 0xC6, 0xA102    }, // SEQ_CMD
-//    {1, 0xC8, 0x0001    }, // SEQ_CMD
-    //refresh
-//    {1, 0xC6, 0xA103    }, // SEQ_CMD
-//    {1, 0xC8, 0x0005    }, // SEQ_CMD
-//    {100,0x00,0x01F4    },
+    {1, 0xC6, 0xAB04    }, // HG_MAX_DLEVEL
+    {1, 0xC8, 0x0008    }, // HG_MAX_DLEVEL
+    
+    //wait for preview mode
+    {1, 0xC6, 0xA103    }, // SEQ_CMD
+    {1, 0xC8, 0x0005    }, // SEQ_CMD
+    {1, 0xC6, 0xA104    }, // SEQ_CMD
+    {111, 0xC8,0x0003   },
+    {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
+    {1, 0x08, 0x01EC    }, // COLOR_PIPELINE_CONTROL
+    {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
+    {1, 0x36, 0x0F08    }, // APERTURE_PARAMETERS
 
-    //set exposure driver
+    //enter preview state
+    //previewParmas[0].ae
+    //0-off 1-fast settling 2-manual 3-continuous 4-fast settling and metering
+    {1, 0xC6, 0xA122    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].fd
+    //0-off 1-manual 2-continuous
+    {1, 0xC6, 0xA123    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].awb
+    //0-off 1-fast settling 2-manual 3-continuous
+    {1, 0xC6, 0xA124    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].af
+    //0-off 1-fast 2-manual 5-creep compensation
+    {1, 0xC6, 0xA125    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].hg
+    //0-off 1-fast 2-manual 3-continuous
+    {1, 0xC6, 0xA126    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].flash
+    //0-off 1-on 2-locked 3-auto evaluate
+    {1, 0xC6, 0xA127    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[0].skipframe
+    {1, 0xC6, 0xA128    },
+    {1, 0xC8, 0x0000    },
+    //preview state
+    //previewParmas[1].ae
+    //0-off 1-fast settling 2-manual 3-continuous 4-fast settling and metering
+    {1, 0xC6, 0xA129    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].fd
+    //0-off 1-manual 2-continuous
+    {1, 0xC6, 0xA12A    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].awb
+    //0-off 1-fast settling 2-manual 3-continuous
+    {1, 0xC6, 0xA12B    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].af
+    //0-off 1-fast 2-manual 5-creep compensation
+    {1, 0xC6, 0xA12C    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].hg
+    //0-off 1-fast 2-manual 3-continuous
+    {1, 0xC6, 0xA12D    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].flash
+    //0-off 1-on 2-locked 3-auto evaluate
+    {1, 0xC6, 0xA12E    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[1].skipframe
+    {1, 0xC6, 0xA12F    },
+    {1, 0xC8, 0x0000    },
+
+    //preview leave
+    //previewParmas[2].ae
+    //0-off 1-fast settling 2-manual 3-continuous 4-fast settling and metering
+    {1, 0xC6, 0xA130    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].fd
+    //0-off 1-manual 2-continuous
+    {1, 0xC6, 0xA131    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].awb
+    //0-off 1-fast settling 2-manual 3-continuous
+    {1, 0xC6, 0xA132    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].af
+    //0-off 1-fast 2-manual 5-creep compensation
+    {1, 0xC6, 0xA133    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].hg
+    //0-off 1-fast 2-manual 3-continuous
+    {1, 0xC6, 0xA134    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].flash
+    //0-off 1-on 2-locked 3-auto evaluate
+    {1, 0xC6, 0xA135    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[2].skipframe
+    {1, 0xC6, 0xA136    },
+    {1, 0xC8, 0x0000    },
+    
+    //capture state
+    //previewParmas[3].ae
+    //0-off 1-fast settling 2-manual 3-continuous 4-fast settling and metering
+    {1, 0xC6, 0xA137    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].fd
+    //0-off 1-manual 2-continuous
+    {1, 0xC6, 0xA138    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].awb
+    //0-off 1-fast settling 2-manual 3-continuous
+    {1, 0xC6, 0xA139    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].af
+    //0-off 1-fast 2-manual 5-creep compensation
+    {1, 0xC6, 0xA13A    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].hg
+    //0-off 1-fast 2-manual 3-continuous
+    {1, 0xC6, 0xA13B    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].flash
+    //0-off 1-on 2-locked 3-auto evaluate
+    {1, 0xC6, 0xA13C    },
+    {1, 0xC8, 0x0000    },
+    //previewParmas[3].skipframe
+    {1, 0xC6, 0xA13D    },
+    {1, 0xC8, 0x0000    },
+    
+    {1, 0xC6, 0xA103    }, // SEQ_CMD
+    {1, 0xC8, 0x0005    }, // SEQ_CMD
+    
+    //refresh
+//    {1, 0xC6, 0xA103    },  // SEQ_CMD
+//    {1, 0xC8, 0x0005    },   // SEQ_CMD, refresh
+};
+
+static const s_RegList custom_cmds_list[]={
     //ae.R9
 //    {1, 0xC6, 0x2225    }, // SEQ_CMD
-//    {1, 0xC8, 0x0011    }, // SEQ_CMD
+//    {1, 0xC8, 0x0FFF    }, // SEQ_CMD
+    //ae.virtGain
+//    {1, 0xC6, 0xA21F    }, // SEQ_CMD
+//    {1, 0xC8, 0x0020    }, // SEQ_CMD
+    
     //ae.Target
 //    {1, 0xC6, 0xA206    }, // SEQ_CMD
 //    {1, 0xC8, 0x0000    }, // SEQ_CMD
+//    
+//  {0, 0x09, 0x0FFF}, 
+  {0, 0x09, 0x04D0},
+  {0, 0x2B, 0x0020},
+  {0, 0x2C, 0x0020},
+  {0, 0x2D, 0x0020},
+  {0, 0x2E, 0x0020},
+  {0, 0x2F, 0x0020},
     //refresh
-    {1, 0xC6, 0xA103    }, // SEQ_CMD
-    {1, 0xC8, 0x0005    }, // SEQ_CMD
-    //wait for preview mode
-    {1, 0xC6, 0xA104    }, // SEQ_CMD
-    {111, 0xC8,0x0003   },
-//    {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
-//    {1, 0x08, 0x01EC    }, // COLOR_PIPELINE_CONTROL
-//    {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
-//    {1, 0x36, 0x0F08    }, // APERTURE_PARAMETERS
-//    {1, 0xC6, 0xA103    }, // SEQ_CMD
-//    {1, 0xC8, 0x0005    }, // SEQ_CMD
-};
-
-static  const s_RegList read_cmds_list[]= {
-  //read seq.mode
-    {1, 0xC6, 0xA102    },
-    {112, 0xC8,0x0000   },
+//  {1, 0xC6, 0xA103    }, // SEQ_CMD
+//  {1, 0xC8, 0x0005    }, // SEQ_CMD
+//    {100,0x00,0x01F4    },
 };
 
 //*****************************************************************************
@@ -329,6 +464,7 @@ static  const s_RegList read_cmds_list[]= {
 //*****************************************************************************
 static long RegLstWrite(s_RegList *pRegLst, unsigned long ulNofItems);
 extern void MT9D111Delay(unsigned long ucDelay);
+static long RegLstRead();
 
 
 //*****************************************************************************
@@ -345,10 +481,15 @@ extern void MT9D111Delay(unsigned long ucDelay);
 long CameraSensorInit()
 {
     long lRetVal = -1;
-    
+//    RegLstRead();
     lRetVal = RegLstWrite((s_RegList *)init_cmds_list, \
                                     sizeof(init_cmds_list)/sizeof(s_RegList));
     ASSERT_ON_ERROR(lRetVal);
+//    RegLstRead();
+//    lRetVal = RegLstWrite((s_RegList *)custom_cmds_list, \
+//                                    sizeof(custom_cmds_list)/sizeof(s_RegList));
+//    ASSERT_ON_ERROR(lRetVal);
+//    RegLstRead();
     
 //    lRetVal = RegLstWrite((s_RegList *)read_cmds_list, \
 //                                    sizeof(read_cmds_list)/sizeof(s_RegList));
@@ -387,9 +528,13 @@ long StartSensorInJpegMode(int width, int height)
 #ifdef ENABLE_JPEG
     long lRetVal = -1;
 
+//    RegLstRead();
+    
     lRetVal = RegLstWrite((s_RegList *)capture_cmds_list,
                         sizeof(capture_cmds_list)/sizeof(s_RegList));
     ASSERT_ON_ERROR(lRetVal);    
+    
+//    RegLstRead();
     
     resolution_cmds_list[INDEX_SIZE_WIDTH].usValue = width;
     resolution_cmds_list[INDEX_SIZE_HEIGHT].usValue = height;
@@ -400,6 +545,8 @@ long StartSensorInJpegMode(int width, int height)
     lRetVal = RegLstWrite((s_RegList *)start_jpeg_capture_cmd_list,
                         sizeof(start_jpeg_capture_cmd_list)/sizeof(s_RegList));
     ASSERT_ON_ERROR(lRetVal);    
+    
+    RegLstRead();
 #endif 
     return 0;
 }
@@ -548,6 +695,123 @@ static long RegLstWrite(s_RegList *pRegLst, unsigned long ulNofItems)
 
     return RET_OK;
 }
+
+//*****************************************************************************
+//
+//! This function implements the Register Write in MT9D111 sensor
+//!
+//! \param1                     Register List
+//! \param2                     No. Of Items
+//!
+//! \return                     0 - Success
+//!                             -1 - Error
+//
+//*****************************************************************************
+static unsigned short RegRead(unsigned char page_addr, unsigned char reg_addr){
+  unsigned char       ucBuffer[20];
+  long lRetVal = -1;
+  unsigned short retval;
+  // Set the page 
+  ucBuffer[0] = SENSOR_PAGE_REG;
+  ucBuffer[1] = 0x00;
+  ucBuffer[2] = page_addr;
+  if(0 != I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,3,I2C_SEND_STOP))
+  {
+    return RET_ERROR;
+  }
+  
+  //read page back
+  ucBuffer[0] = SENSOR_PAGE_REG;
+  lRetVal = I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,1,I2C_SEND_STOP);
+  ASSERT_ON_ERROR(lRetVal);
+  lRetVal = I2CBufferRead(CAM_I2C_SLAVE_ADDR,ucBuffer,2,I2C_SEND_STOP);
+  ASSERT_ON_ERROR(lRetVal);
+  
+  //write address
+  ucBuffer[0] = reg_addr;
+  lRetVal = I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,1,1);
+  ASSERT_ON_ERROR(lRetVal);
+  //read value
+  if(I2CBufferRead(CAM_I2C_SLAVE_ADDR,ucBuffer,2,1))
+  {
+    return RET_ERROR;
+  }
+  
+  retval = ucBuffer[0] << 8;
+  retval |= ucBuffer[1];
+  
+  return retval;
+}
+
+static unsigned short VarRead(unsigned short addr){
+  unsigned char       ucBuffer[20];
+  unsigned long       ulSize;
+  long lRetVal = -1;
+  unsigned short retval;
+  // Set the page 
+  ucBuffer[0] = SENSOR_PAGE_REG;
+  ucBuffer[1] = 0x00;
+  ucBuffer[2] = (unsigned char)(1);
+  if(0 != I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,3,I2C_SEND_STOP))
+  {
+    return RET_ERROR;
+  }
+  
+  //read page back
+  ucBuffer[0] = SENSOR_PAGE_REG;
+  lRetVal = I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,1,I2C_SEND_STOP);
+  ASSERT_ON_ERROR(lRetVal);
+  lRetVal = I2CBufferRead(CAM_I2C_SLAVE_ADDR,ucBuffer,2,I2C_SEND_STOP);
+  ASSERT_ON_ERROR(lRetVal);
+  
+  //write 0xC6
+  ulSize = 3;
+  ucBuffer[0] = 0xC6;
+  ucBuffer[1] = (unsigned char)(addr >> 8);
+  ucBuffer[2] = (unsigned char)(addr & 0xFF);
+  
+  if(0 != I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,
+                         ulSize,I2C_SEND_STOP))
+  {
+    return RET_ERROR;
+  }
+  
+  //write address
+  ucBuffer[0] = 0xC8;
+  lRetVal = I2CBufferWrite(CAM_I2C_SLAVE_ADDR,ucBuffer,1,1);
+  ASSERT_ON_ERROR(lRetVal);
+  //read value
+  if(I2CBufferRead(CAM_I2C_SLAVE_ADDR,ucBuffer,2,1))
+  {
+    return RET_ERROR;
+  }
+  
+  retval = ucBuffer[0] << 8;
+  retval |= ucBuffer[1];
+  return retval;
+}
+
+static long RegLstRead()
+{
+  unsigned short R9_0 = RegRead(0, 9);
+  unsigned short green1_gain = RegRead(0, 0x2B);
+  unsigned short blue_gain = RegRead(0, 0x2C);
+  unsigned short red_gain = RegRead(0, 0x2D);
+  unsigned short green2_gain = RegRead(0, 0x2E);
+  unsigned short global_gain = RegRead(0, 0x2F);
+  //page 1, color pipeline control
+  unsigned short color_pipeline_ctrl = RegRead(1, 0x08);
+  
+  unsigned short seq_mode = VarRead(0xA102);
+  unsigned short seq_state = VarRead(0xA104);
+  unsigned short ae_target = VarRead(0xA206);
+  unsigned short ae_virt_gain = VarRead(0xA21F);
+  unsigned short ae_dgain_ae1 = VarRead(0x2222);
+  unsigned short ae_dagin_ae2 = VarRead(0xA224);
+  unsigned short ae_r9 = VarRead(0x2225);
+  return 0;
+}
+
 
 //*****************************************************************************
 //
