@@ -287,8 +287,27 @@ static  const s_RegList init_cmds_list[]= {
     {1, 0x1F, 0x0020    }, // RESERVED_SOC1_1F
 //    {1, 0xC6, 0xAB04    }, // HG_MAX_DLEVEL
 //    {1, 0xC8, 0x0008    }, // HG_MAX_DLEVEL
+    //shutter width
+//    {0, 0x09, 0xFFF},
+    //disable all drivers
+//    {1, 0xC6, 0xA102    }, // SEQ_CMD
+//    {1, 0xC8, 0x0001    }, // SEQ_CMD
+    //refresh
+//    {1, 0xC6, 0xA103    }, // SEQ_CMD
+//    {1, 0xC8, 0x0005    }, // SEQ_CMD
+//    {100,0x00,0x01F4    },
+
+    //set exposure driver
+    //ae.R9
+//    {1, 0xC6, 0x2225    }, // SEQ_CMD
+//    {1, 0xC8, 0x0011    }, // SEQ_CMD
+    //ae.Target
+//    {1, 0xC6, 0xA206    }, // SEQ_CMD
+//    {1, 0xC8, 0x0000    }, // SEQ_CMD
+    //refresh
     {1, 0xC6, 0xA103    }, // SEQ_CMD
     {1, 0xC8, 0x0005    }, // SEQ_CMD
+    //wait for preview mode
     {1, 0xC6, 0xA104    }, // SEQ_CMD
     {111, 0xC8,0x0003   },
 //    {1, 0x08, 0x01FC    }, // COLOR_PIPELINE_CONTROL
@@ -297,6 +316,12 @@ static  const s_RegList init_cmds_list[]= {
 //    {1, 0x36, 0x0F08    }, // APERTURE_PARAMETERS
 //    {1, 0xC6, 0xA103    }, // SEQ_CMD
 //    {1, 0xC8, 0x0005    }, // SEQ_CMD
+};
+
+static  const s_RegList read_cmds_list[]= {
+  //read seq.mode
+    {1, 0xC6, 0xA102    },
+    {112, 0xC8,0x0000   },
 };
 
 //*****************************************************************************
@@ -324,6 +349,9 @@ long CameraSensorInit()
     lRetVal = RegLstWrite((s_RegList *)init_cmds_list, \
                                     sizeof(init_cmds_list)/sizeof(s_RegList));
     ASSERT_ON_ERROR(lRetVal);
+    
+//    lRetVal = RegLstWrite((s_RegList *)read_cmds_list, \
+//                                    sizeof(read_cmds_list)/sizeof(s_RegList));
 
 #ifndef ENABLE_JPEG
     lRetVal = RegLstWrite((s_RegList *)preview_cmds_list,
