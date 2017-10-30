@@ -27,8 +27,12 @@ try:
         length = struct.unpack('H', length)[0]
         stringData = recvall(s, length)
         print length, len(stringData)
-        data = np.fromstring(stringData, dtype='uint8')
-        decimg = cv2.imdecode(data, 1)
+        #if(length<=0):
+            #import pdb; pdb.set_trace()  # XXX BREAKPOINT
+
+        #data = np.fromstring(stringData, dtype='uint8')
+        #decimg = cv2.imdecode(data, 1)
+        decimg = cv2.imdecode(np.asarray(bytearray(stringData), dtype=np.uint8), -1)
         if decimg != None:
             print decimg.shape
             gray = cv2.cvtColor(decimg, cv2.COLOR_BGR2GRAY)
@@ -42,6 +46,10 @@ try:
             cv2.imshow("thd", thd_frame);
             cv2.waitKey(100)
         else:
+            #f = open('brokenfile.jpg', 'w')
+            #f.write(stringData)
+            #f.close()
+            #import pdb; pdb.set_trace()  # XXX BREAKPOINT
             print 'decimg None'
 #ra = ss.recv(512)
 #print ra
